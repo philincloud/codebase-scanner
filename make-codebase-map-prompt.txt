@@ -74,11 +74,17 @@ This single command will:
 
 1. **Use tree command to get complete directory structure:**
    ```bash
-   # Get complete tree structure of the project
-   tree -a -I 'node_modules|.git' > complete_tree.txt
-   
-   # Also get tree with file sizes and details
-   tree -a -h -I 'node_modules|.git' > complete_tree_detailed.txt
+   # Check if tree command is available
+   if command -v tree &> /dev/null; then
+     # Get complete tree structure of the project
+     tree -a -I 'node_modules|.git' > complete_tree.txt
+     
+     # Also get tree with file sizes and details
+     tree -a -h -I 'node_modules|.git' > complete_tree_detailed.txt
+   else
+     echo "⚠️  tree command not found, using find instead"
+     find . -type f -not -path './node_modules/*' -not -path './.git/*' > complete_tree.txt
+   fi
    ```
 
 2. **Scan the entire project structure manually:**
@@ -107,6 +113,8 @@ This single command will:
    - **CHUNKED CREATION**: Create the JSON in chunks to avoid output limits
    - **COMPLETE COVERAGE**: Ensure every file from tree command is included
    - **VERIFICATION**: After each chunk, verify against tree command output
+   - **EXISTENCE CHECK**: Check if codebase-map.json already exists before creating
+   - **BACKUP**: If file exists, create backup before overwriting
 
 5. **VERIFICATION - Ensure complete coverage:**
    ```bash
@@ -164,6 +172,8 @@ This single command will:
 - **CHUNKED CREATION**: Create codebase-map.json in chunks to avoid output limits, but ensure complete coverage
 - **NO USER REVIEW**: Do not ask user to review progress - proceed automatically through all steps
 - **AUTOMATIC EXECUTION**: Complete the entire workflow without stopping for user input
+- **EXISTENCE CHECKS**: Always check if directories/files exist before attempting to create them
+- **AVOID DUPLICATES**: Never create directories or files that already exist
 
 ### STEP 1: Install and Setup Dependency-Cruiser
 1. **Install dependency-cruiser:**
@@ -177,7 +187,13 @@ This single command will:
 
 2. **Create depCruiser directory (if not exists):**
    ```bash
-   mkdir -p codebase_scanner/depCruiser
+   # Check if directory exists before creating
+   if [ ! -d "codebase_scanner/depCruiser" ]; then
+     mkdir -p codebase_scanner/depCruiser
+     echo "📁 Created directory: codebase_scanner/depCruiser"
+   else
+     echo "📁 Directory already exists: codebase_scanner/depCruiser"
+   fi
    ```
 
 ### STEP 2: Run Complete Fresh Scan
@@ -376,6 +392,19 @@ The updated codebase-map.json follows this enhanced schema:
     - Check the console output for sync messages (🗑️ for deleted, ➕ for new)
     - Ensure the src/ directory path is correct
 
+11. **"ES modules error or import/export issues"**
+    - The project uses ES modules (`"type": "module"` in package.json)
+    - Ensure Node.js version 14+ is being used
+    - The update-codebase-map.js script uses import/export syntax
+    - If using CommonJS, convert to ES modules or use .mjs extension
+
+12. **"Directory or file already exists error"**
+    - Always check if directories/files exist before creating them
+    - Use existence checks: `if [ ! -d "directory" ]` or `if [ ! -f "file" ]`
+    - For directories: `mkdir -p` is safe (won't error if exists)
+    - For files: check existence before writing
+    - The script handles existence checks automatically
+
 ### Validation Commands:
 ```bash
 # Check script permissions
@@ -395,6 +424,13 @@ grep -c '"name":' codebase-map.json
 tree -a -I 'node_modules|.git' > tree_verification.txt
 echo "Tree files: $(tree -a -I 'node_modules|.git' | grep -c '├──\|└──')"
 echo "Map files: $(grep -c '"name":' codebase-map.json)"
+
+# Check if directories exist before creating
+echo "Checking directory existence:"
+[ -d "codebase_scanner" ] && echo "✅ codebase_scanner/ exists" || echo "❌ codebase_scanner/ missing"
+[ -d "codebase_scanner/depCruiser" ] && echo "✅ depCruiser/ exists" || echo "❌ depCruiser/ missing"
+[ -d "codebase_scanner/backups" ] && echo "✅ backups/ exists" || echo "❌ backups/ missing"
+[ -f "codebase-map.json" ] && echo "✅ codebase-map.json exists" || echo "❌ codebase-map.json missing"
 ```
 
 ## AUTOMATION TIPS
@@ -426,4 +462,7 @@ npm run fresh-scan
 - **NO USER REVIEW**: Complete the entire workflow automatically without asking for user input
 - **AUTOMATIC EXECUTION**: Proceed through all steps without stopping for confirmation
 - **FRESHSCAN WORKFLOW**: Runs dependency-cruiser analysis and updates codebase-map.json with the results
-- **DEPENDENCY INTEGRATION**: Existing file entries are enhanced with dependency information from dependency-cruiser 
+- **DEPENDENCY INTEGRATION**: Existing file entries are enhanced with dependency information from dependency-cruiser
+- **ES MODULES**: The project uses ES modules (`"type": "module"` in package.json) for modern Node.js compatibility
+- **EXISTENCE CHECKS**: Always verify directories and files exist before attempting to create them
+- **DUPLICATE PREVENTION**: The script automatically checks for existing directories and files 
