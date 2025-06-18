@@ -29,12 +29,12 @@ The `make-codebase-map-prompt.txt` file contains instructions **directly address
 
 ## 🚀 Quick Start
 
-### Step 1: Ask Your AI Agent to Apply Instructions
+### Step 1: Add Instructions to Your AI Agent
 
-**The first and most important step is to ask your AI coding agent (like Cursor) to apply the instructions from `make-codebase-map-prompt.txt`.**
+**Add `make-codebase-map-prompt.txt` to your agent context window and ask it to read and apply the instructions.**
 
 Simply ask your AI agent:
-> "Please apply the instructions from `make-codebase-map-prompt.txt` to analyze this codebase."
+> "Please read and apply the instructions from `make-codebase-map-prompt.txt` to analyze this codebase."
 
 The AI agent will then:
 - Read and understand the comprehensive instructions
@@ -115,12 +115,15 @@ codebase_scanner/
 
 **This tool is designed exclusively for AI coding agents and should be used through them:**
 
-1. **Ask your AI agent to apply the instructions:**
+1. **Add `make-codebase-map-prompt.txt` to your agent context window**
+
+2. **Ask your AI agent to read and apply the instructions:**
    ```
-   "Please apply the instructions from make-codebase-map-prompt.txt to analyze this codebase."
+   "Please read and apply the instructions from make-codebase-map-prompt.txt to analyze this codebase."
    ```
 
-2. **The AI agent will handle everything automatically:**
+3. **The AI agent will handle everything automatically:**
+   - Read and understand the comprehensive instructions
    - Install dependencies
    - Run analysis
    - Generate reports
@@ -220,20 +223,23 @@ The tool generates a comprehensive `codebase-map.json` with this structure:
 
 The `make-codebase-map-prompt.txt` file contains detailed instructions specifically formatted for LLMs to:
 
-1. **Understand the project structure**
-2. **Execute dependency analysis**
-3. **Update codebase maps automatically**
-4. **Handle errors and edge cases**
-5. **Validate results**
+1. **Add the prompt file to your agent's context window**
+2. **Understand the project structure**
+3. **Execute dependency analysis**
+4. **Update codebase maps automatically**
+5. **Handle errors and edge cases**
+6. **Validate results**
 
 **Recommended AI workflow:**
 ```
-1. Read make-codebase-map-prompt.txt
-2. Validate existing codebase-map.json (if exists)
-3. Install dependency-cruiser if needed
-4. Run freshscan command
-5. Verify results and handle any issues
-6. Report completion status
+1. Add make-codebase-map-prompt.txt to agent context window
+2. Ask agent to read and apply the instructions
+3. Agent reads make-codebase-map-prompt.txt
+4. Agent validates existing codebase-map.json (if exists)
+5. Agent installs dependency-cruiser if needed
+6. Agent runs freshscan command
+7. Agent verifies results and handles any issues
+8. Agent reports completion status
 ```
 
 ## 🎯 Key Benefits

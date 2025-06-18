@@ -5,6 +5,8 @@
 - Scan every directory to the deepest levels
 - Document every single file
 - Create a complete codebase-map.json manually
+- **NO PARTIAL MAPPING**: Must create entire map in one go
+- **NO SIZE LIMITS**: Include everything regardless of file size
 - Only then proceed to dependency analysis
 
 ## OVERVIEW
@@ -70,14 +72,24 @@ This single command will:
 
 **MANDATORY MANUAL SCAN WORKFLOW:**
 
-1. **Scan the entire project structure manually:**
+1. **Use tree command to get complete directory structure:**
+   ```bash
+   # Get complete tree structure of the project
+   tree -a -I 'node_modules|.git' > complete_tree.txt
+   
+   # Also get tree with file sizes and details
+   tree -a -h -I 'node_modules|.git' > complete_tree_detailed.txt
+   ```
+
+2. **Scan the entire project structure manually:**
    - Use `list_dir` or similar tools to explore every directory
    - Go to the deepest levels of the directory tree
    - Document every single file and folder
    - Identify the root directory name
    - Map out the complete directory structure
+   - **CRITICAL**: Cross-reference with tree command output to ensure nothing is missed
 
-2. **Analyze each file individually:**
+3. **Analyze each file individually:**
    - Read the contents of each file
    - Determine file type and language
    - Count lines of code
@@ -85,27 +97,67 @@ This single command will:
    - Understand the purpose and functionality
    - Note any obvious dependencies or imports
 
-3. **Create a comprehensive codebase-map.json manually:**
+4. **Create a comprehensive codebase-map.json manually:**
    - Follow the exact JSON schema provided below
    - Include every single file found in the scan
    - Provide detailed descriptions for each file
    - Set appropriate metadata for each file
    - Organize files into proper directory structure
    - Include file details like size, lines, language
+   - **CHUNKED CREATION**: Create the JSON in chunks to avoid output limits
+   - **COMPLETE COVERAGE**: Ensure every file from tree command is included
+   - **VERIFICATION**: After each chunk, verify against tree command output
 
-4. **Manual scan requirements:**
+5. **VERIFICATION - Ensure complete coverage:**
+   ```bash
+   # Count files in tree output
+   tree -a -I 'node_modules|.git' | grep -c '├──\|└──' > tree_file_count.txt
+   
+   # Count files in your codebase-map.json
+   grep -c '"name":' codebase-map.json > map_file_count.txt
+   
+   # Compare counts - they should match
+   echo "Files in tree: $(cat tree_file_count.txt)"
+   echo "Files in map: $(cat map_file_count.txt)"
+   
+   # If counts don't match, you missed files - scan again!
+   ```
+
+6. **CHUNKED CREATION STRATEGY:**
+   - **Scan completely first**: Use tree command to get total file count
+   - **Create chunks by directory**: Process one directory at a time
+   - **Verify each chunk**: Ensure chunk contains all files from that directory
+   - **Combine chunks**: Merge all chunks into final codebase-map.json
+   - **Final verification**: Compare total file count with tree output
+   - **No file left behind**: Every file from tree must be in final map
+
+7. **Manual scan requirements:**
    - **Thorough**: Scan every directory, no exceptions
    - **Deep**: Go to the deepest levels of the directory tree
    - **Detailed**: Document every single file
    - **Accurate**: Provide meaningful descriptions and metadata
    - **Complete**: Include all files, not just source files
+   - **Verified**: Use tree command to verify complete coverage
+   - **ONE GO**: Create the entire map in one attempt, no partial mapping
+   - **NO LIMITS**: File size doesn't matter, include everything
+   - **NO SKIPPING**: Every file must be mapped, regardless of type or size
 
-5. **After manual scan completion:**
+8. **After manual scan completion:**
    - Save the manually created codebase-map.json
    - Verify JSON is valid
+   - **CRITICAL**: Verify that file counts match between tree and map
    - Proceed to STEP 1 (dependency analysis)
 
-**IMPORTANT:** Do NOT proceed to dependency analysis until you have manually scanned the entire codebase and created a complete codebase-map.json file.
+**IMPORTANT:** Do NOT proceed to dependency analysis until you have manually scanned the entire codebase, created a complete codebase-map.json file, AND verified that every file from the tree command is included in your map.
+
+**CRITICAL REQUIREMENTS:**
+- **NO PARTIAL MAPPING**: You must map the ENTIRE codebase in one go
+- **NO SIZE LIMITS**: The codebase-map.json can be as large as needed
+- **NO SKIPPING**: Every single file must be included, regardless of size or complexity
+- **COMPLETE COVERAGE**: All directories, subdirectories, and files must be mapped
+- **ONE ATTEMPT**: Do not ask for partial mapping or break it into smaller chunks
+- **VERIFICATION REQUIRED**: Use tree command to verify 100% coverage before proceeding
+- **CHUNKED CREATION**: Create codebase-map.json in chunks to avoid output limits, but ensure complete coverage
 
 ### STEP 1: Install and Setup Dependency-Cruiser
 1. **Install dependency-cruiser:**
@@ -252,16 +304,37 @@ The updated codebase-map.json follows this enhanced schema:
    - **CRITICAL**: If codebase-map.json doesn't exist, you MUST perform a manual scan first (see STEP 0.5)
    - Do NOT proceed to dependency analysis without a complete manual scan
 
-2. **"Dependency analysis failed"**
+2. **"Incomplete scan detected"**
+   - Use tree command to verify complete coverage: `tree -a -I 'node_modules|.git'`
+   - Count files in tree vs codebase-map.json
+   - If counts don't match, you missed files - scan again
+   - Ensure every branch of directory tree is mapped
+
+3. **"Partial mapping attempted"**
+   - **STOP**: Do not create partial maps
+   - You must map the ENTIRE codebase in one go
+   - File size doesn't matter - include everything
+   - Use tree command to ensure complete coverage
+   - Create complete codebase-map.json with all files
+   - **Use chunked creation**: Process directories one by one, then combine
+
+4. **"Dependency analysis failed"**
    - Check that dependency-cruiser is installed
    - Verify that src/ directory exists
    - Check Node.js version (v14 or higher)
 
-3. **"Permission errors"**
+5. **"Output limits reached during JSON creation"**
+   - Use chunked creation strategy
+   - Process one directory at a time
+   - Combine chunks into final codebase-map.json
+   - Verify complete coverage after combining
+   - Ensure no files are missed in the process
+
+6. **"Permission errors"**
    - Ensure you have read/write permissions for the project directory
    - Check file permissions for codebase-map.json
 
-4. **"HTML/SVG generation failed"**
+7. **"HTML/SVG generation failed"**
    - These are optional features
    - HTML generation requires dependency-cruiser
    - SVG generation requires Graphviz installation
@@ -276,6 +349,15 @@ npx dependency-cruiser --version
 
 # Test script execution
 node codebase_scanner/update-codebase-map.js help
+
+# Verify complete scan coverage
+tree -a -I 'node_modules|.git' | wc -l
+grep -c '"name":' codebase-map.json
+
+# Compare tree structure with map
+tree -a -I 'node_modules|.git' > tree_verification.txt
+echo "Tree files: $(tree -a -I 'node_modules|.git' | grep -c '├──\|└──')"
+echo "Map files: $(grep -c '"name":' codebase-map.json)"
 ```
 
 ## AUTOMATION TIPS
