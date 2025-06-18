@@ -1,5 +1,12 @@
 # COMPREHENSIVE CODEBASE MAPPING AND DEPENDENCY ANALYSIS INSTRUCTIONS
 
+## ⚠️ CRITICAL WARNING
+**IF codebase-map.json DOES NOT EXIST, YOU MUST PERFORM A MANUAL SCAN OF THE ENTIRE CODEBASE BEFORE USING ANY TOOLS.**
+- Scan every directory to the deepest levels
+- Document every single file
+- Create a complete codebase-map.json manually
+- Only then proceed to dependency analysis
+
 ## OVERVIEW
 This tool automatically creates and maintains a comprehensive codebase map with detailed dependency analysis. It uses dependency-cruiser for dependency scanning and an automated script for updating the codebase-map.json file.
 
@@ -40,7 +47,7 @@ This single command will:
    if [ -f "codebase-map.json" ]; then
      echo "✅ codebase-map.json found"
    else
-     echo "❌ codebase-map.json not found - create initial map first"
+     echo "❌ codebase-map.json not found - MANUAL SCAN REQUIRED"
    fi
    ```
 
@@ -57,6 +64,48 @@ This single command will:
      echo "⚠️  codebase-map.json is older than source files - needs update"
    fi
    ```
+
+### STEP 0.5: MANUAL CODEBASE SCAN (CRITICAL - IF NO codebase-map.json EXISTS)
+**IF codebase-map.json DOES NOT EXIST, YOU MUST PERFORM A MANUAL SCAN FIRST.**
+
+**MANDATORY MANUAL SCAN WORKFLOW:**
+
+1. **Scan the entire project structure manually:**
+   - Use `list_dir` or similar tools to explore every directory
+   - Go to the deepest levels of the directory tree
+   - Document every single file and folder
+   - Identify the root directory name
+   - Map out the complete directory structure
+
+2. **Analyze each file individually:**
+   - Read the contents of each file
+   - Determine file type and language
+   - Count lines of code
+   - Identify file size
+   - Understand the purpose and functionality
+   - Note any obvious dependencies or imports
+
+3. **Create a comprehensive codebase-map.json manually:**
+   - Follow the exact JSON schema provided below
+   - Include every single file found in the scan
+   - Provide detailed descriptions for each file
+   - Set appropriate metadata for each file
+   - Organize files into proper directory structure
+   - Include file details like size, lines, language
+
+4. **Manual scan requirements:**
+   - **Thorough**: Scan every directory, no exceptions
+   - **Deep**: Go to the deepest levels of the directory tree
+   - **Detailed**: Document every single file
+   - **Accurate**: Provide meaningful descriptions and metadata
+   - **Complete**: Include all files, not just source files
+
+5. **After manual scan completion:**
+   - Save the manually created codebase-map.json
+   - Verify JSON is valid
+   - Proceed to STEP 1 (dependency analysis)
+
+**IMPORTANT:** Do NOT proceed to dependency analysis until you have manually scanned the entire codebase and created a complete codebase-map.json file.
 
 ### STEP 1: Install and Setup Dependency-Cruiser
 1. **Install dependency-cruiser:**
@@ -200,7 +249,8 @@ The updated codebase-map.json follows this enhanced schema:
 ### Common Issues:
 1. **"codebase-map.json not found"**
    - Ensure you're running the script from the project root directory
-   - Create an initial codebase-map.json if it doesn't exist
+   - **CRITICAL**: If codebase-map.json doesn't exist, you MUST perform a manual scan first (see STEP 0.5)
+   - Do NOT proceed to dependency analysis without a complete manual scan
 
 2. **"Dependency analysis failed"**
    - Check that dependency-cruiser is installed
