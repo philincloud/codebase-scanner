@@ -27,6 +27,34 @@ The `make-codebase-map-prompt.txt` file contains instructions **directly address
 - Maintain up-to-date project documentation
 - Provide better code suggestions and refactoring recommendations
 
+## 🚀 Quick Start
+
+### Step 1: Ask Your AI Agent to Apply Instructions
+
+**The first and most important step is to ask your AI coding agent (like Cursor) to apply the instructions from `make-codebase-map-prompt.txt`.**
+
+Simply ask your AI agent:
+> "Please apply the instructions from `make-codebase-map-prompt.txt` to analyze this codebase."
+
+The AI agent will then:
+- Read and understand the comprehensive instructions
+- Install necessary dependencies (dependency-cruiser)
+- Run the complete analysis workflow
+- Generate all required reports and maps
+- Handle any errors or edge cases automatically
+
+### Step 2: Let the AI Agent Handle Everything
+
+Once you've asked the AI agent to apply the instructions, it will:
+
+1. **Validate the existing codebase map** (if any)
+2. **Install dependency-cruiser** if not already installed
+3. **Run a complete fresh scan** using the automated script
+4. **Generate all reports** (JSON, HTML, SVG)
+5. **Update the codebase map** with enhanced schema
+6. **Create backups** before making changes
+7. **Validate the results** and handle any issues
+
 ## 📋 Features
 
 ### 🔍 Dependency Analysis
@@ -60,33 +88,11 @@ The `make-codebase-map-prompt.txt` file contains instructions **directly address
 ### Required
 - **Node.js** (v14 or higher)
 - **npm** or **yarn** package manager
-- **dependency-cruiser** (installed automatically)
+- **dependency-cruiser** (installed automatically by AI agent)
 
 ### Optional
 - **Graphviz** (for SVG graph generation)
 - **Python** (for JSON validation)
-
-## 🚀 Quick Start
-
-### 1. Install Dependencies
-```bash
-# Install dependency-cruiser
-npm install dependency-cruiser
-```
-
-### 2. Run Analysis
-```bash
-# Generate dependency analysis
-nvm use node && npx dependency-cruiser --no-config --output-type json src > codebase_scanner/depCruiser/dependency-report-new.json
-
-# Update codebase map
-node codebase_scanner/update-codebase-map.js
-```
-
-### 3. View Results
-- Check `codebase-map.json` for the updated map
-- View `codebase_scanner/depCruiser/dependency-report-new.html` for visual analysis
-- Examine `codebase_scanner/depCruiser/dependency-graph-new.svg` for dependency graph
 
 ## 📁 Directory Structure
 
@@ -105,7 +111,25 @@ codebase_scanner/
 
 ## 🔧 Usage
 
-### For Human Developers
+### For AI Coding Agents (Recommended)
+
+**The primary way to use this tool is through AI agents:**
+
+1. **Ask your AI agent to apply the instructions:**
+   ```
+   "Please apply the instructions from make-codebase-map-prompt.txt to analyze this codebase."
+   ```
+
+2. **The AI agent will handle everything automatically:**
+   - Install dependencies
+   - Run analysis
+   - Generate reports
+   - Update maps
+   - Handle errors
+
+### For Human Developers (Manual Usage)
+
+If you prefer to run commands manually, the AI agent instructions in `make-codebase-map-prompt.txt` contain all the detailed commands and workflows.
 
 #### Basic Commands
 ```bash
@@ -135,35 +159,6 @@ node codebase_scanner/update-codebase-map.js help
 
 #### Default Behavior
 If no command is provided, the script runs `update` mode by default.
-
-### For AI Coding Agents
-The `make-codebase-map-prompt.txt` file contains detailed instructions specifically formatted for LLMs to:
-- Understand the project structure
-- Execute dependency analysis
-- Update codebase maps automatically
-- Handle errors and edge cases
-- Validate results
-
-**Recommended AI workflow:**
-```bash
-# For AI agents, use freshscan to ensure complete analysis
-node codebase_scanner/update-codebase-map.js freshscan
-```
-
-### Advanced Usage
-```bash
-# 1. Manual dependency analysis (if needed)
-nvm use node && npx dependency-cruiser --no-config --output-type json src > codebase_scanner/depCruiser/dependency-report-new.json
-
-# 2. Manual HTML report generation
-nvm use node && npx dependency-cruiser --no-config --output-type html src > codebase_scanner/depCruiser/dependency-report-new.html
-
-# 3. Manual SVG graph generation (requires Graphviz)
-nvm use node && npx dependency-cruiser --no-config --output-type dot src | dot -T svg > codebase_scanner/depCruiser/dependency-graph-new.svg
-
-# 4. Update codebase map only
-node codebase_scanner/update-codebase-map.js update
-```
 
 ### Package.json Integration
 Add these scripts to your `package.json`:
@@ -238,96 +233,55 @@ The tool generates a comprehensive `codebase-map.json` with this structure:
             "unresolved": 0
           }
         }
-      ]
+      ],
+      "subdirectories": []
     }
-  ]
+  ],
+  "metadata": {
+    "totalFiles": 50,
+    "totalDependencies": 150,
+    "dependencyAnalysis": {
+      "source": "dependency-cruiser",
+      "reportFile": "codebase_scanner/depCruiser/dependency-report-new.json",
+      "analysisDate": "2024-01-01"
+    }
+  }
 }
 ```
 
-## 🛠️ Configuration
-
-The tool is configured via constants in `update-codebase-map.js`:
-
-```javascript
-const CONFIG = {
-  codebaseMapPath: './codebase-map.json',
-  depCruiserDir: './codebase_scanner/depCruiser',
-  depCruiserReportPath: './codebase_scanner/depCruiser/dependency-report-new.json',
-  srcDir: './src',
-  backupDir: './codebase_scanner/backups'
-};
-```
-
-## 🔍 Troubleshooting
-
-### Common Issues
-
-1. **"codebase-map.json not found"**
-   - Ensure you're running from the project root
-   - Create an initial codebase-map.json if needed
-
-2. **"Dependency report not found"**
-   - Run dependency-cruiser analysis first
-   - Check that depCruiser directory exists
-
-3. **Permission errors**
-   - Check file permissions
-   - Ensure write access to project directory
-
-4. **Node.js version issues**
-   - Use Node.js v14 or higher
-   - Use `nvm use node` if using nvm
-
-### Validation Commands
-```bash
-# Check script permissions
-ls -la codebase_scanner/update-codebase-map.js
-
-# Verify dependency-cruiser
-npx dependency-cruiser --version
-
-# Validate JSON output
-python3 -m json.tool codebase-map.json > /dev/null && echo "✅ Valid JSON" || echo "❌ Invalid JSON"
-```
-
-## 📈 Benefits
-
-- **Automated Analysis**: No manual file-by-file updates needed
-- **Comprehensive Data**: Detailed dependency and metadata information
-- **Safety**: Automatic backups and error handling
-- **Flexibility**: Works with any project structure
-- **Maintainability**: Easy to update and extend
-- **Integration**: Can be integrated into CI/CD pipelines
-- **AI-Optimized**: Designed specifically for LLM-based coding agents
-
 ## 🤖 AI Agent Workflow
 
-For AI coding agents like Cursor, the typical workflow is:
+The `make-codebase-map-prompt.txt` file contains detailed instructions specifically formatted for LLMs to:
 
-1. **Read Instructions**: Parse `make-codebase-map-prompt.txt` for workflow steps
-2. **Execute Analysis**: Run dependency-cruiser commands
-3. **Update Map**: Execute the update script
-4. **Validate Results**: Check output and handle any errors
-5. **Provide Feedback**: Report success/failure to the user
+1. **Understand the project structure**
+2. **Execute dependency analysis**
+3. **Update codebase maps automatically**
+4. **Handle errors and edge cases**
+5. **Validate results**
 
-The tool provides structured output that AI agents can easily parse and understand.
+**Recommended AI workflow:**
+```
+1. Read make-codebase-map-prompt.txt
+2. Validate existing codebase-map.json (if exists)
+3. Install dependency-cruiser if needed
+4. Run freshscan command
+5. Verify results and handle any issues
+6. Report completion status
+```
+
+## 🎯 Key Benefits
+
+- **AI-First Design**: Optimized for AI coding agents
+- **Automated Workflow**: Single command execution
+- **Comprehensive Analysis**: Detailed dependency tracking
+- **Safety Features**: Automatic backups and validation
+- **Flexible Usage**: Works with any project structure
+- **Enhanced Schema**: Rich metadata for better AI understanding
+
+## 📝 License
+
+MIT License - see LICENSE file for details.
 
 ## 🤝 Contributing
 
-To extend or modify the tool:
-
-1. Edit `update-codebase-map.js` for core functionality
-2. Update `make-codebase-map-prompt.txt` for LLM instructions
-3. Test with your project structure
-4. Update this README.md with changes
-
-## 📄 License
-
-This tool is part of the project codebase and follows the same license terms.
-
-## 🔗 Related Files
-
-- `make-codebase-map-prompt.txt` - LLM instructions and detailed workflow
-- `update-codebase-map.js` - Main automation script
-- `depCruiser/` - Dependency analysis reports
-- `backups/` - Automatic backup files 
+Contributions are welcome! Please feel free to submit a Pull Request. 
