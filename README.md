@@ -1,6 +1,6 @@
 # Codebase Scanner Tool
 
-A comprehensive tool for automatically analyzing and mapping codebases with detailed dependency information. **This tool is specifically designed to work with coding agents like Cursor and other AI-powered development environments.**
+A comprehensive tool for automatically analyzing and mapping codebases with detailed dependency information. **This tool is designed exclusively for AI coding agents like Cursor and other LLM-powered development environments. It is not intended for manual human usage.**
 
 ## 🎯 What This Tool Does
 
@@ -111,9 +111,9 @@ codebase_scanner/
 
 ## 🔧 Usage
 
-### For AI Coding Agents (Recommended)
+### For AI Coding Agents (Exclusive)
 
-**The primary way to use this tool is through AI agents:**
+**This tool is designed exclusively for AI coding agents and should be used through them:**
 
 1. **Ask your AI agent to apply the instructions:**
    ```
@@ -126,39 +126,6 @@ codebase_scanner/
    - Generate reports
    - Update maps
    - Handle errors
-
-### For Human Developers (Manual Usage)
-
-If you prefer to run commands manually, the AI agent instructions in `make-codebase-map-prompt.txt` contain all the detailed commands and workflows.
-
-#### Basic Commands
-```bash
-# Run complete fresh scan (dependency analysis + update)
-node codebase_scanner/update-codebase-map.js freshscan
-
-# Update codebase map only (requires existing dependency report)
-node codebase_scanner/update-codebase-map.js update
-
-# Show help
-node codebase_scanner/update-codebase-map.js help
-```
-
-#### Command Options
-- **`freshscan`** - Runs complete fresh scan:
-  - Generates new dependency-cruiser analysis
-  - Creates JSON, HTML, and SVG reports
-  - Updates codebase-map.json with fresh data
-  - Creates automatic backup before updating
-
-- **`update`** - Updates codebase map only:
-  - Requires existing dependency report
-  - Updates codebase-map.json with current data
-  - Creates automatic backup before updating
-
-- **`help`** - Shows command usage and options
-
-#### Default Behavior
-If no command is provided, the script runs `update` mode by default.
 
 ### Package.json Integration
 Add these scripts to your `package.json`:
@@ -271,8 +238,8 @@ The `make-codebase-map-prompt.txt` file contains detailed instructions specifica
 
 ## 🎯 Key Benefits
 
-- **AI-First Design**: Optimized for AI coding agents
-- **Automated Workflow**: Single command execution
+- **AI-Exclusive Design**: Built specifically for AI coding agents, not human developers
+- **Automated Workflow**: Single command execution through AI agents
 - **Comprehensive Analysis**: Detailed dependency tracking
 - **Safety Features**: Automatic backups and validation
 - **Flexible Usage**: Works with any project structure
