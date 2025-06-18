@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "A comprehensive tool for automatically analyzing and mapping codebases with detailed dependency information, designed for AI coding agents",
   "main": "update-codebase-map.js",
+  "type": "module",
   "scripts": {
     "scan-deps": "npx dependency-cruiser --no-config --output-type json src > codebase_scanner/depCruiser/dependency-report-new.json",
     "update-map": "node codebase_scanner/update-codebase-map.js update",
@@ -22,16 +23,16 @@
     "code-mapping",
     "project-analysis"
   ],
-  "author": "Filip Suwik",
+  "author": "philincloud/filipsuwik",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/filipsuwik/codebase-scanner.git"
+    "url": "https://github.com/philincloud/codebase-scanner.git"
   },
   "bugs": {
-    "url": "https://github.com/filipsuwik/codebase-scanner/issues"
+    "url": "https://github.com/philincloud/codebase-scanner/issues"
   },
-  "homepage": "https://github.com/filipsuwik/codebase-scanner#readme",
+  "homepage": "https://github.com/philincloud/codebase-scanner#readme",
   "engines": {
     "node": ">=14.0.0"
   },

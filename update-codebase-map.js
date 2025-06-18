@@ -17,6 +17,9 @@ const CONFIG = {
 // Ensure backup directory exists
 if (!fs.existsSync(CONFIG.backupDir)) {
   fs.mkdirSync(CONFIG.backupDir, { recursive: true });
+  console.log(`📁 Created backup directory: ${CONFIG.backupDir}`);
+} else {
+  console.log(`📁 Backup directory already exists: ${CONFIG.backupDir}`);
 }
 
 // Function to run dependency-cruiser analysis
@@ -28,6 +31,13 @@ function runDependencyAnalysis() {
     if (!fs.existsSync(CONFIG.depCruiserDir)) {
       fs.mkdirSync(CONFIG.depCruiserDir, { recursive: true });
       console.log(`📁 Created directory: ${CONFIG.depCruiserDir}`);
+    } else {
+      console.log(`📁 Directory already exists: ${CONFIG.depCruiserDir}`);
+    }
+    
+    // Check if dependency report already exists
+    if (fs.existsSync(CONFIG.depCruiserReportPath)) {
+      console.log(`📊 Dependency report already exists: ${CONFIG.depCruiserReportPath}`);
     }
     
     // Generate JSON report
@@ -39,24 +49,34 @@ function runDependencyAnalysis() {
     
     // Generate HTML report (optional)
     console.log('🌐 Generating HTML dependency report...');
-    try {
-      execSync(`nvm use node && npx dependency-cruiser --no-config --output-type html src > ${CONFIG.depCruiserDir}/dependency-report-new.html`, { 
-        stdio: 'inherit',
-        shell: true 
-      });
-    } catch (error) {
-      console.warn('⚠️  HTML report generation failed (optional):', error.message);
+    const htmlReportPath = `${CONFIG.depCruiserDir}/dependency-report-new.html`;
+    if (fs.existsSync(htmlReportPath)) {
+      console.log(`🌐 HTML report already exists: ${htmlReportPath}`);
+    } else {
+      try {
+        execSync(`nvm use node && npx dependency-cruiser --no-config --output-type html src > ${htmlReportPath}`, { 
+          stdio: 'inherit',
+          shell: true 
+        });
+      } catch (error) {
+        console.warn('⚠️  HTML report generation failed (optional):', error.message);
+      }
     }
     
     // Generate SVG graph (optional)
     console.log('📈 Generating SVG dependency graph...');
-    try {
-      execSync(`nvm use node && npx dependency-cruiser --no-config --output-type dot src | dot -T svg > ${CONFIG.depCruiserDir}/dependency-graph-new.svg`, { 
-        stdio: 'inherit',
-        shell: true 
-      });
-    } catch (error) {
-      console.warn('⚠️  SVG graph generation failed (optional):', error.message);
+    const svgGraphPath = `${CONFIG.depCruiserDir}/dependency-graph-new.svg`;
+    if (fs.existsSync(svgGraphPath)) {
+      console.log(`📈 SVG graph already exists: ${svgGraphPath}`);
+    } else {
+      try {
+        execSync(`nvm use node && npx dependency-cruiser --no-config --output-type dot src | dot -T svg > ${svgGraphPath}`, { 
+          stdio: 'inherit',
+          shell: true 
+        });
+      } catch (error) {
+        console.warn('⚠️  SVG graph generation failed (optional):', error.message);
+      }
     }
     
     console.log('✅ Dependency analysis completed successfully!');
@@ -252,10 +272,12 @@ function syncCodebaseMap(codebaseMap, projectRoot) {
   // Get all actual files from src directory
   const srcPath = path.join(projectRoot, CONFIG.srcDir);
   if (!fs.existsSync(srcPath)) {
-    console.warn(`⚠️  Source directory ${CONFIG.srcDir} not found`);
+    console.warn(`⚠️  Source directory ${CONFIG.srcDir} not found at: ${srcPath}`);
+    console.log('💡 Make sure you have a src/ directory in your project root');
     return codebaseMap;
   }
   
+  console.log(`📁 Found source directory: ${srcPath}`);
   const actualFiles = getAllFiles(srcPath);
   console.log(`📁 Found ${actualFiles.length} actual files in ${CONFIG.srcDir}/`);
   
@@ -351,9 +373,19 @@ function updateCodebaseMap() {
     process.exit(1);
   }
   
+  console.log(`📄 Found existing codebase-map.json: ${CONFIG.codebaseMapPath}`);
+  
   // Create backup
   const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
   const backupPath = path.join(CONFIG.backupDir, `codebase-map-backup-${timestamp}.json`);
+  
+  // Check if backup directory exists (should already be created at startup)
+  if (!fs.existsSync(CONFIG.backupDir)) {
+    console.warn(`⚠️  Backup directory not found, creating: ${CONFIG.backupDir}`);
+    fs.mkdirSync(CONFIG.backupDir, { recursive: true });
+  }
+  
+  // Create backup
   fs.copyFileSync(CONFIG.codebaseMapPath, backupPath);
   console.log(`💾 Backup created: ${backupPath}`);
   
