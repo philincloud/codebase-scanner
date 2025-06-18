@@ -17,27 +17,33 @@ This tool automatically creates and maintains a comprehensive codebase map with 
 - npm or yarn package manager
 - Project must have a `src/` directory or similar source code structure
 
-## QUICK START
+## 🚀 Quick Start
 
-### Step 1: Install Dependencies
+### Step 1: Clone the Codebase Scanner
+
+**Clone the codebase scanner into your project root directory:**
+
 ```bash
-# Install dependency-cruiser globally or locally
-npm install -g dependency-cruiser
-# OR
-npm install dependency-cruiser --save-dev
+# Clone the repository into your project root
+git clone https://github.com/philincloud/codebase-scanner.git codebase_scanner
+
+# Navigate into the codebase_scanner directory
+cd codebase_scanner
 ```
 
-### Step 2: Run Complete Fresh Scan
-```bash
-# Run complete fresh scan (dependency analysis + update)
-node codebase_scanner/update-codebase-map.js freshscan
-```
+### Step 2: Add Instructions to Your AI Agent
 
-This single command will:
-- Generate fresh dependency analysis using dependency-cruiser
-- Create JSON, HTML, and SVG reports
-- Update codebase-map.json with enhanced schema
-- Create automatic backup before updating
+**Add `make-codebase-map-prompt.txt` to your agent context window and ask it to read and apply the instructions.**
+
+Simply ask your AI agent:
+> "Please read and apply the instructions from `make-codebase-map-prompt.txt` to analyze this codebase."
+
+The AI agent will then:
+- Read and understand the comprehensive instructions
+- Install necessary dependencies (dependency-cruiser)
+- Run the complete analysis workflow
+- Generate all required reports and maps
+- Handle any errors or edge cases automatically
 
 ## DETAILED WORKFLOW
 
@@ -188,11 +194,11 @@ This single command will:
 2. **Create depCruiser directory (if not exists):**
    ```bash
    # Check if directory exists before creating
-   if [ ! -d "codebase_scanner/depCruiser" ]; then
-     mkdir -p codebase_scanner/depCruiser
-     echo "📁 Created directory: codebase_scanner/depCruiser"
+   if [ ! -d "depCruiser" ]; then
+     mkdir -p depCruiser
+     echo "📁 Created directory: depCruiser"
    else
-     echo "📁 Directory already exists: codebase_scanner/depCruiser"
+     echo "📁 Directory already exists: depCruiser"
    fi
    ```
 
@@ -201,7 +207,7 @@ This single command will:
 
 1. **Run the fresh scan command:**
    ```bash
-   node codebase_scanner/update-codebase-map.js freshscan
+   node update-codebase-map.js freshscan
    ```
 
 2. **The freshscan command automatically:**
@@ -254,13 +260,13 @@ This single command will:
 ### Update Only (if dependency report already exists)
 ```bash
 # Update codebase map only (requires existing dependency report)
-node codebase_scanner/update-codebase-map.js update
+node update-codebase-map.js update
 ```
 
 ### Show Help
 ```bash
 # Show command usage and options
-node codebase_scanner/update-codebase-map.js help
+node update-codebase-map.js help
 ```
 
 ## JSON SCHEMA TEMPLATE
@@ -408,29 +414,28 @@ The updated codebase-map.json follows this enhanced schema:
 ### Validation Commands:
 ```bash
 # Check script permissions
-ls -la codebase_scanner/update-codebase-map.js
+ls -la update-codebase-map.js
 
 # Verify dependency-cruiser installation
-npx dependency-cruiser --version
+source ~/.nvm/nvm.sh && nvm use node && npx dependency-cruiser --version
 
 # Test script execution
-node codebase_scanner/update-codebase-map.js help
+node update-codebase-map.js help
 
 # Verify complete scan coverage
 tree -a -I 'node_modules|.git' | wc -l
-grep -c '"name":' codebase-map.json
+grep -c '"name":' ../codebase-map.json
 
 # Compare tree structure with map
 tree -a -I 'node_modules|.git' > tree_verification.txt
 echo "Tree files: $(tree -a -I 'node_modules|.git' | grep -c '├──\|└──')"
-echo "Map files: $(grep -c '"name":' codebase-map.json)"
+echo "Map files: $(grep -c '"name":' ../codebase-map.json)"
 
 # Check if directories exist before creating
 echo "Checking directory existence:"
-[ -d "codebase_scanner" ] && echo "✅ codebase_scanner/ exists" || echo "❌ codebase_scanner/ missing"
-[ -d "codebase_scanner/depCruiser" ] && echo "✅ depCruiser/ exists" || echo "❌ depCruiser/ missing"
-[ -d "codebase_scanner/backups" ] && echo "✅ backups/ exists" || echo "❌ backups/ missing"
-[ -f "codebase-map.json" ] && echo "✅ codebase-map.json exists" || echo "❌ codebase-map.json missing"
+[ -d "depCruiser" ] && echo "✅ depCruiser/ exists" || echo "❌ depCruiser/ missing"
+[ -d "backups" ] && echo "✅ backups/ exists" || echo "❌ backups/ missing"
+[ -f "../codebase-map.json" ] && echo "✅ codebase-map.json exists" || echo "❌ codebase-map.json missing"
 ```
 
 ## AUTOMATION TIPS
@@ -439,8 +444,8 @@ echo "Checking directory existence:"
 ```json
 {
   "scripts": {
-    "fresh-scan": "node codebase_scanner/update-codebase-map.js freshscan",
-    "update-map": "node codebase_scanner/update-codebase-map.js update",
+    "fresh-scan": "cd codebase_scanner && node update-codebase-map.js freshscan",
+    "update-map": "cd codebase_scanner && node update-codebase-map.js update",
     "codebase-analysis": "npm run fresh-scan"
   }
 }
@@ -465,4 +470,26 @@ npm run fresh-scan
 - **DEPENDENCY INTEGRATION**: Existing file entries are enhanced with dependency information from dependency-cruiser
 - **ES MODULES**: The project uses ES modules (`"type": "module"` in package.json) for modern Node.js compatibility
 - **EXISTENCE CHECKS**: Always verify directories and files exist before attempting to create them
-- **DUPLICATE PREVENTION**: The script automatically checks for existing directories and files 
+- **DUPLICATE PREVENTION**: The script automatically checks for existing directories and files
+- **CLONED TOOL**: The codebase scanner is cloned into each project as `codebase_scanner/` directory
+- **WORKING DIRECTORY**: Scripts run from within the `codebase_scanner/` directory
+
+## 📁 Directory Structure
+
+```
+project-root/
+├── src/                                    # Your project source code
+├── package.json                           # Your project package.json
+├── codebase-map.json                      # Generated codebase map (in project root)
+└── codebase_scanner/                      # Cloned codebase scanner tool
+    ├── README.md                          # This file
+    ├── make-codebase-map-prompt.txt       # LLM instructions and detailed workflow
+    ├── update-codebase-map.js             # Main update script
+    ├── package.json                       # Tool package.json
+    ├── depCruiser/                        # Dependency analysis reports
+    │   ├── dependency-report-new.json     # JSON dependency report
+    │   ├── dependency-report-new.html     # HTML dependency report
+    │   └── dependency-graph-new.svg       # SVG dependency graph
+    └── backups/                           # Automatic backups
+        └── codebase-map-backup-*.json     # Timestamped backups
+``` 

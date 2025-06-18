@@ -5,9 +5,9 @@
   "main": "update-codebase-map.js",
   "type": "module",
   "scripts": {
-    "scan-deps": "npx dependency-cruiser --no-config --output-type json src > codebase_scanner/depCruiser/dependency-report-new.json",
-    "update-map": "node codebase_scanner/update-codebase-map.js update",
-    "fresh-scan": "node codebase_scanner/update-codebase-map.js freshscan",
+    "scan-deps": "cd .. && source ~/.nvm/nvm.sh && nvm use node && npx dependency-cruiser --no-config --output-type json src > codebase_scanner/depCruiser/dependency-report-new.json",
+    "update-map": "node update-codebase-map.js update",
+    "fresh-scan": "node update-codebase-map.js freshscan",
     "codebase-analysis": "npm run fresh-scan",
     "test": "echo \"Error: no test specified\" && exit 1"
   },

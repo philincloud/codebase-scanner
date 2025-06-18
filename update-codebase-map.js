@@ -6,12 +6,12 @@ import { execSync } from 'child_process';
 
 // Configuration
 const CONFIG = {
-  // Paths relative to project root (where this script is run from)
-  codebaseMapPath: './codebase-map.json',
-  depCruiserDir: './codebase_scanner/depCruiser',
-  depCruiserReportPath: './codebase_scanner/depCruiser/dependency-report-new.json',
-  srcDir: './src', // Default source directory
-  backupDir: './codebase_scanner/backups'
+  // Paths relative to project root (parent directory of codebase_scanner)
+  codebaseMapPath: '../codebase-map.json',
+  depCruiserDir: './depCruiser',
+  depCruiserReportPath: './depCruiser/dependency-report-new.json',
+  srcDir: '../src', // Default source directory in parent project
+  backupDir: './backups'
 };
 
 // Ensure backup directory exists
@@ -42,7 +42,7 @@ function runDependencyAnalysis() {
     
     // Generate JSON report
     console.log('📊 Generating JSON dependency report...');
-    execSync(`nvm use node && npx dependency-cruiser --no-config --output-type json src > ${CONFIG.depCruiserReportPath}`, { 
+    execSync(`cd .. && source ~/.nvm/nvm.sh && nvm use node && npx dependency-cruiser --no-config --output-type json src > codebase_scanner/${CONFIG.depCruiserReportPath}`, { 
       stdio: 'inherit',
       shell: true 
     });
@@ -54,7 +54,7 @@ function runDependencyAnalysis() {
       console.log(`🌐 HTML report already exists: ${htmlReportPath}`);
     } else {
       try {
-        execSync(`nvm use node && npx dependency-cruiser --no-config --output-type html src > ${htmlReportPath}`, { 
+        execSync(`cd .. && source ~/.nvm/nvm.sh && nvm use node && npx dependency-cruiser --no-config --output-type html src > codebase_scanner/${htmlReportPath}`, { 
           stdio: 'inherit',
           shell: true 
         });
@@ -70,7 +70,7 @@ function runDependencyAnalysis() {
       console.log(`📈 SVG graph already exists: ${svgGraphPath}`);
     } else {
       try {
-        execSync(`nvm use node && npx dependency-cruiser --no-config --output-type dot src | dot -T svg > ${svgGraphPath}`, { 
+        execSync(`cd .. && source ~/.nvm/nvm.sh && nvm use node && npx dependency-cruiser --no-config --output-type dot src | dot -T svg > codebase_scanner/${svgGraphPath}`, { 
           stdio: 'inherit',
           shell: true 
         });
@@ -164,10 +164,9 @@ function updateFileEntry(fileEntry, projectRoot) {
   
   // Try different possible file paths
   const possiblePaths = [
-    path.join(CONFIG.srcDir, fileName),
-    path.join(projectRoot, CONFIG.srcDir, fileName),
-    path.join(projectRoot, 'philincloud.com/src', fileName),
-    path.join(projectRoot, fileName)
+    path.join(projectRoot, 'src', fileName),
+    path.join(projectRoot, fileName),
+    path.join(projectRoot, 'philincloud.com/src', fileName)
   ];
   
   let filePath = null;
@@ -270,16 +269,16 @@ function syncCodebaseMap(codebaseMap, projectRoot) {
   console.log('🔄 Syncing codebase-map.json with actual filesystem...');
   
   // Get all actual files from src directory
-  const srcPath = path.join(projectRoot, CONFIG.srcDir);
+  const srcPath = path.join(projectRoot, 'src'); // Use 'src' directly since projectRoot is already the parent
   if (!fs.existsSync(srcPath)) {
-    console.warn(`⚠️  Source directory ${CONFIG.srcDir} not found at: ${srcPath}`);
+    console.warn(`⚠️  Source directory src/ not found at: ${srcPath}`);
     console.log('💡 Make sure you have a src/ directory in your project root');
     return codebaseMap;
   }
   
   console.log(`📁 Found source directory: ${srcPath}`);
   const actualFiles = getAllFiles(srcPath);
-  console.log(`📁 Found ${actualFiles.length} actual files in ${CONFIG.srcDir}/`);
+  console.log(`📁 Found ${actualFiles.length} actual files in src/`);
   
   // Create a map of actual files for quick lookup
   const actualFileMap = new Map();
@@ -391,7 +390,7 @@ function updateCodebaseMap() {
   
   // Read current codebase-map.json
   const codebaseMap = JSON.parse(fs.readFileSync(CONFIG.codebaseMapPath, 'utf8'));
-  const projectRoot = process.cwd();
+  const projectRoot = path.resolve('..'); // Parent directory of codebase_scanner
   
   // Step 1: Sync with actual filesystem (remove deleted files, add new files)
   const syncedCodebaseMap = syncCodebaseMap(codebaseMap, projectRoot);
@@ -467,7 +466,7 @@ function showHelp() {
   console.log(`
 🔧 Codebase Scanner Tool
 
-Usage: node codebase_scanner/update-codebase-map.js [command]
+Usage: node update-codebase-map.js [command]
 
 Commands:
   freshscan    Run complete fresh scan (dependency analysis + update)
@@ -475,11 +474,13 @@ Commands:
   help         Show this help message
 
 Examples:
-  node codebase_scanner/update-codebase-map.js freshscan
-  node codebase_scanner/update-codebase-map.js update
-  node codebase_scanner/update-codebase-map.js help
+  node update-codebase-map.js freshscan
+  node update-codebase-map.js update
+  node update-codebase-map.js help
 
 Default behavior (no command): runs update only
+
+Note: This script should be run from within the codebase_scanner directory
 `);
 }
 
