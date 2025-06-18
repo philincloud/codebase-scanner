@@ -1,0 +1,44 @@
+{
+  "name": "codebase-scanner",
+  "version": "1.0.0",
+  "description": "A comprehensive tool for automatically analyzing and mapping codebases with detailed dependency information, designed for AI coding agents",
+  "main": "update-codebase-map.js",
+  "scripts": {
+    "scan-deps": "npx dependency-cruiser --no-config --output-type json src > codebase_scanner/depCruiser/dependency-report-new.json",
+    "update-map": "node codebase_scanner/update-codebase-map.js update",
+    "fresh-scan": "node codebase_scanner/update-codebase-map.js freshscan",
+    "codebase-analysis": "npm run fresh-scan",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "codebase",
+    "analysis",
+    "dependencies",
+    "dependency-cruiser",
+    "ai",
+    "cursor",
+    "coding-agent",
+    "llm",
+    "code-mapping",
+    "project-analysis"
+  ],
+  "author": "Filip Suwik",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/filipsuwik/codebase-scanner.git"
+  },
+  "bugs": {
+    "url": "https://github.com/filipsuwik/codebase-scanner/issues"
+  },
+  "homepage": "https://github.com/filipsuwik/codebase-scanner#readme",
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "dependencies": {
+    "dependency-cruiser": "^13.0.0"
+  },
+  "devDependencies": {},
+  "peerDependencies": {},
+  "optionalDependencies": {}
+} 
