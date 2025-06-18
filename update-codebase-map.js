@@ -212,6 +212,134 @@ function updateSubdirectoryFiles(subdirectories, projectRoot) {
   });
 }
 
+// Function to recursively get all files from a directory
+function getAllFiles(dirPath, basePath = '') {
+  const files = [];
+  
+  try {
+    const items = fs.readdirSync(dirPath);
+    
+    for (const item of items) {
+      const fullPath = path.join(dirPath, item);
+      const relativePath = path.join(basePath, item);
+      const stats = fs.statSync(fullPath);
+      
+      if (stats.isDirectory()) {
+        // Recursively get files from subdirectories
+        const subFiles = getAllFiles(fullPath, relativePath);
+        files.push(...subFiles);
+      } else {
+        // Add file to the list
+        files.push({
+          name: item,
+          path: relativePath,
+          fullPath: fullPath,
+          stats: stats
+        });
+      }
+    }
+  } catch (error) {
+    console.warn(`⚠️  Could not read directory ${dirPath}: ${error.message}`);
+  }
+  
+  return files;
+}
+
+// Function to sync codebase map with actual filesystem
+function syncCodebaseMap(codebaseMap, projectRoot) {
+  console.log('🔄 Syncing codebase-map.json with actual filesystem...');
+  
+  // Get all actual files from src directory
+  const srcPath = path.join(projectRoot, CONFIG.srcDir);
+  if (!fs.existsSync(srcPath)) {
+    console.warn(`⚠️  Source directory ${CONFIG.srcDir} not found`);
+    return codebaseMap;
+  }
+  
+  const actualFiles = getAllFiles(srcPath);
+  console.log(`📁 Found ${actualFiles.length} actual files in ${CONFIG.srcDir}/`);
+  
+  // Create a map of actual files for quick lookup
+  const actualFileMap = new Map();
+  actualFiles.forEach(file => {
+    actualFileMap.set(file.name, file);
+  });
+  
+  // Update subdirectories to sync with actual filesystem
+  if (codebaseMap.subdirectories) {
+    codebaseMap.subdirectories = codebaseMap.subdirectories.map(subdir => {
+      if (subdir.directory === 'philincloud.com' && subdir.subdirectories) {
+        subdir.subdirectories = subdir.subdirectories.map(srcSubdir => {
+          if (srcSubdir.directory === 'src' && srcSubdir.files) {
+            const originalFileCount = srcSubdir.files.length;
+            
+            // Filter out deleted files and add new files
+            const updatedFiles = [];
+            const processedFiles = new Set();
+            
+            // Process existing files that still exist
+            srcSubdir.files.forEach(fileEntry => {
+              if (actualFileMap.has(fileEntry.name)) {
+                updatedFiles.push(fileEntry);
+                processedFiles.add(fileEntry.name);
+              } else {
+                console.log(`🗑️  Removed deleted file: ${fileEntry.name}`);
+              }
+            });
+            
+            // Add new files that weren't in the original map
+            actualFiles.forEach(actualFile => {
+              if (!processedFiles.has(actualFile.name)) {
+                console.log(`➕ Added new file: ${actualFile.name}`);
+                const newFileEntry = {
+                  name: actualFile.name,
+                  description: `Auto-generated entry for ${actualFile.name}`,
+                  lastUpdated: new Date().toISOString().split('T')[0],
+                  dependencies: [],
+                  testCoverage: "none",
+                  dependents: [],
+                  orphan: false,
+                  valid: true,
+                  moduleSystem: "es6",
+                  fileDetails: {
+                    size: (actualFile.stats.size / 1024).toFixed(1) + 'K',
+                    lines: fs.readFileSync(actualFile.fullPath, 'utf8').split('\n').length,
+                    language: getFileLanguage(actualFile.name),
+                    entryPoint: false,
+                    bundled: true,
+                    treeShakeable: getFileLanguage(actualFile.name) === 'jsx' || getFileLanguage(actualFile.name) === 'js',
+                    sideEffects: false
+                  },
+                  dependencyDetails: {
+                    total: 0,
+                    npm: 0,
+                    local: 0,
+                    core: 0,
+                    dynamic: 0,
+                    circular: 0,
+                    unresolved: 0
+                  }
+                };
+                updatedFiles.push(newFileEntry);
+              }
+            });
+            
+            srcSubdir.files = updatedFiles;
+            console.log(`📊 Files synced: ${originalFileCount} → ${updatedFiles.length} (${updatedFiles.length - originalFileCount > 0 ? '+' : ''}${updatedFiles.length - originalFileCount})`);
+          }
+          if (srcSubdir.subdirectories) {
+            srcSubdir.subdirectories = updateSubdirectoryFiles(srcSubdir.subdirectories, projectRoot);
+          }
+          return srcSubdir;
+        });
+      }
+      return subdir;
+    });
+  }
+  
+  return codebaseMap;
+}
+
 // Function to update codebase map
 function updateCodebaseMap() {
   console.log('🔍 Starting codebase-map.json update...');
@@ -233,13 +361,16 @@ function updateCodebaseMap() {
   const codebaseMap = JSON.parse(fs.readFileSync(CONFIG.codebaseMapPath, 'utf8'));
   const projectRoot = process.cwd();
   
-  // Update all files in the src directory
-  if (codebaseMap.subdirectories) {
-    codebaseMap.subdirectories = codebaseMap.subdirectories.map(subdir => {
+  // Step 1: Sync with actual filesystem (remove deleted files, add new files)
+  const syncedCodebaseMap = syncCodebaseMap(codebaseMap, projectRoot);
+  
+  // Step 2: Update all files with dependency information
+  if (syncedCodebaseMap.subdirectories) {
+    syncedCodebaseMap.subdirectories = syncedCodebaseMap.subdirectories.map(subdir => {
       if (subdir.directory === 'philincloud.com' && subdir.subdirectories) {
         subdir.subdirectories = subdir.subdirectories.map(srcSubdir => {
           if (srcSubdir.directory === 'src' && srcSubdir.files) {
-            console.log(`📁 Updating ${srcSubdir.files.length} files in src/ directory...`);
+            console.log(`📁 Updating ${srcSubdir.files.length} files in src/ directory with dependency information...`);
             srcSubdir.files = srcSubdir.files.map(fileEntry => updateFileEntry(fileEntry, projectRoot));
           }
           if (srcSubdir.subdirectories) {
@@ -253,9 +384,9 @@ function updateCodebaseMap() {
   }
   
   // Write the updated codebase-map.json
-  fs.writeFileSync(CONFIG.codebaseMapPath, JSON.stringify(codebaseMap, null, 2));
+  fs.writeFileSync(CONFIG.codebaseMapPath, JSON.stringify(syncedCodebaseMap, null, 2));
   console.log('✅ codebase-map.json has been updated with enhanced schema for all files!');
-  console.log(`📊 Total files processed: ${countFiles(codebaseMap)}`);
+  console.log(`📊 Total files processed: ${countFiles(syncedCodebaseMap)}`);
 }
 
 // Helper function to count total files

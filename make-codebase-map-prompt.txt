@@ -194,11 +194,21 @@ This single command will:
    - Generates HTML dependency report (optional)
    - Generates SVG dependency graph (optional)
    - Creates backup of existing codebase-map.json
-   - Updates all file entries with enhanced schema
-   - Adds detailed dependency information
+   - **SYNCS with actual filesystem** (removes deleted files, adds new files)
+   - **UPDATES codebase-map.json with dependency-cruiser output**
+   - Adds detailed dependency information from the analysis
    - Includes file metadata (size, lines, language)
    - Updates dependency counts and types
    - Handles all files in the src/ directory recursively
+   - **ENHANCES existing file entries with dependency data**
+
+3. **What happens to codebase-map.json:**
+   - **Filesystem sync**: Removes entries for deleted files, adds entries for new files
+   - **Existing file entries are preserved** (descriptions, structure)
+   - **Dependency information is added/updated** from dependency-cruiser
+   - **File details are enhanced** with size, lines, language
+   - **Dependency counts are calculated** and added
+   - **Backup is created** before any changes
 
 ### STEP 3: Validation and Verification
 1. **Check the updated codebase-map.json:**
@@ -352,6 +362,20 @@ The updated codebase-map.json follows this enhanced schema:
    - Do not wait for confirmation or approval
    - Execute all commands and create all files automatically
 
+9. **"Dependency information not updated in codebase-map.json"**
+   - Ensure freshscan command completed successfully
+   - Check that dependency-cruiser report was generated
+   - Verify that codebase-map.json exists before running freshscan
+   - The freshscan command should automatically update existing file entries with dependency data
+   - Check backup files if the update failed
+
+10. **"Deleted files still appear in codebase-map.json"**
+    - The freshscan command automatically syncs with the filesystem
+    - Deleted files should be removed automatically
+    - New files should be added automatically
+    - Check the console output for sync messages (🗑️ for deleted, ➕ for new)
+    - Ensure the src/ directory path is correct
+
 ### Validation Commands:
 ```bash
 # Check script permissions
@@ -400,4 +424,6 @@ npm run fresh-scan
 - The enhanced schema includes comprehensive dependency and file metadata
 - Backups are stored in `codebase_scanner/backups/` directory
 - **NO USER REVIEW**: Complete the entire workflow automatically without asking for user input
-- **AUTOMATIC EXECUTION**: Proceed through all steps without stopping for confirmation 
+- **AUTOMATIC EXECUTION**: Proceed through all steps without stopping for confirmation
+- **FRESHSCAN WORKFLOW**: Runs dependency-cruiser analysis and updates codebase-map.json with the results
+- **DEPENDENCY INTEGRATION**: Existing file entries are enhanced with dependency information from dependency-cruiser 
