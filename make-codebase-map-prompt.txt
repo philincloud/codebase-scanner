@@ -130,6 +130,8 @@ This single command will:
    - **Combine chunks**: Merge all chunks into final codebase-map.json
    - **Final verification**: Compare total file count with tree output
    - **No file left behind**: Every file from tree must be in final map
+   - **No user review**: Proceed automatically through all chunks without stopping
+   - **Automatic execution**: Complete chunked creation without user input
 
 7. **Manual scan requirements:**
    - **Thorough**: Scan every directory, no exceptions
@@ -141,6 +143,8 @@ This single command will:
    - **ONE GO**: Create the entire map in one attempt, no partial mapping
    - **NO LIMITS**: File size doesn't matter, include everything
    - **NO SKIPPING**: Every file must be mapped, regardless of type or size
+   - **NO USER REVIEW**: Proceed automatically without asking for user input
+   - **AUTOMATIC**: Complete all steps without stopping for confirmation
 
 8. **After manual scan completion:**
    - Save the manually created codebase-map.json
@@ -158,6 +162,8 @@ This single command will:
 - **ONE ATTEMPT**: Do not ask for partial mapping or break it into smaller chunks
 - **VERIFICATION REQUIRED**: Use tree command to verify 100% coverage before proceeding
 - **CHUNKED CREATION**: Create codebase-map.json in chunks to avoid output limits, but ensure complete coverage
+- **NO USER REVIEW**: Do not ask user to review progress - proceed automatically through all steps
+- **AUTOMATIC EXECUTION**: Complete the entire workflow without stopping for user input
 
 ### STEP 1: Install and Setup Dependency-Cruiser
 1. **Install dependency-cruiser:**
@@ -339,6 +345,13 @@ The updated codebase-map.json follows this enhanced schema:
    - HTML generation requires dependency-cruiser
    - SVG generation requires Graphviz installation
 
+8. **"Agent asking for user review"**
+   - **STOP**: Do not ask user to review progress
+   - Proceed automatically through all steps
+   - Complete the entire workflow without user input
+   - Do not wait for confirmation or approval
+   - Execute all commands and create all files automatically
+
 ### Validation Commands:
 ```bash
 # Check script permissions
@@ -385,4 +398,6 @@ npm run fresh-scan
 - The tool works with any project structure that has a src/ directory
 - All file paths are relative to the project root directory
 - The enhanced schema includes comprehensive dependency and file metadata
-- Backups are stored in `codebase_scanner/backups/` directory 
+- Backups are stored in `codebase_scanner/backups/` directory
+- **NO USER REVIEW**: Complete the entire workflow automatically without asking for user input
+- **AUTOMATIC EXECUTION**: Proceed through all steps without stopping for confirmation 
