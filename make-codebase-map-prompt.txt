@@ -12,6 +12,25 @@
 ## OVERVIEW
 This tool automatically creates and maintains a comprehensive codebase map with detailed dependency analysis. It uses dependency-cruiser for dependency scanning and an automated script for updating the codebase-map.json file.
 
+**Key Features:**
+- **Dependency Analysis**: Tracks all import/export relationships between files
+- **Test File Detection**: Automatically finds and maps test files for each source file
+- **Enhanced Metadata**: Includes file sizes, line counts, and language detection
+- **Automatic Backups**: Creates timestamped backups before making changes
+- **Filesystem Sync**: Removes deleted files and adds new files automatically
+
+**Test File Detection:**
+The tool automatically detects test files using common naming patterns:
+- `.test.js`, `.test.jsx`, `.test.ts`, `.test.tsx`
+- `.spec.js`, `.spec.jsx`, `.spec.ts`, `.spec.tsx`
+- Files in `test/`, `tests/`, `__tests__/` directories
+- Test files in the same directory as source files
+
+When test files are found, the `testCoverage` field includes:
+- `hasTests`: boolean indicating if tests exist
+- `testFiles`: array of relative paths to test files
+- `testCount`: number of test files found
+
 ## PREREQUISITES
 - Node.js (v14 or higher)
 - npm or yarn package manager
@@ -108,6 +127,8 @@ The AI agent will then:
    - Identify file size
    - Understand the purpose and functionality
    - Note any obvious dependencies or imports
+   - **Identify test files**: Look for `.test.`, `.spec.` files and test directories
+   - **Map test relationships**: Note which test files correspond to which source files
 
 4. **Create a comprehensive codebase-map.json manually:**
    - Follow the exact JSON schema provided below
@@ -294,7 +315,14 @@ The updated codebase-map.json follows this enhanced schema:
               "followable": true
             }
           ],
-          "testCoverage": "none",
+          "testCoverage": {
+            "hasTests": true,
+            "testFiles": [
+              "src/Component.test.jsx",
+              "test/Component.spec.js"
+            ],
+            "testCount": 2
+          },
           "dependents": [],
           "orphan": false,
           "valid": true,
@@ -463,6 +491,8 @@ npm run fresh-scan
 - The tool works with any project structure that has a src/ directory
 - All file paths are relative to the project root directory
 - The enhanced schema includes comprehensive dependency and file metadata
+- **Test file detection is automatic** - the script finds test files using common naming patterns
+- **Test coverage includes file paths** - when tests exist, the testCoverage field shows exact file locations
 - Backups are stored in `codebase_scanner/backups/` directory
 - **NO USER REVIEW**: Complete the entire workflow automatically without asking for user input
 - **AUTOMATIC EXECUTION**: Proceed through all steps without stopping for confirmation

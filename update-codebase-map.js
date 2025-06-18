@@ -158,6 +158,75 @@ function getFileLanguage(fileName) {
   return 'unknown';
 }
 
+// Function to find test files for a given source file
+function findTestFiles(sourceFileName, projectRoot) {
+  const testFiles = [];
+  
+  // Remove file extension to get base name
+  const baseName = sourceFileName.replace(/\.(js|jsx|ts|tsx)$/, '');
+  
+  // Common test file patterns
+  const testPatterns = [
+    `${baseName}.test.js`,
+    `${baseName}.test.jsx`,
+    `${baseName}.test.ts`,
+    `${baseName}.test.tsx`,
+    `${baseName}.spec.js`,
+    `${baseName}.spec.jsx`,
+    `${baseName}.spec.ts`,
+    `${baseName}.spec.tsx`,
+    `test/${baseName}.js`,
+    `test/${baseName}.jsx`,
+    `test/${baseName}.ts`,
+    `test/${baseName}.tsx`,
+    `tests/${baseName}.js`,
+    `tests/${baseName}.jsx`,
+    `tests/${baseName}.ts`,
+    `tests/${baseName}.tsx`,
+    `__tests__/${baseName}.js`,
+    `__tests__/${baseName}.jsx`,
+    `__tests__/${baseName}.ts`,
+    `__tests__/${baseName}.tsx`
+  ];
+  
+  // Check for test files in common test directories
+  const testDirs = ['test', 'tests', '__tests__', 'spec', 'specs'];
+  
+  for (const pattern of testPatterns) {
+    const possiblePaths = [
+      path.join(projectRoot, 'src', pattern),
+      path.join(projectRoot, pattern),
+      path.join(projectRoot, 'test', pattern),
+      path.join(projectRoot, 'tests', pattern),
+      path.join(projectRoot, '__tests__', pattern)
+    ];
+    
+    for (const testPath of possiblePaths) {
+      if (fs.existsSync(testPath)) {
+        const relativePath = path.relative(projectRoot, testPath);
+        testFiles.push(relativePath);
+      }
+    }
+  }
+  
+  // Also check for test files in the same directory as the source file
+  const sourceDir = path.dirname(path.join(projectRoot, 'src', sourceFileName));
+  if (fs.existsSync(sourceDir)) {
+    const dirItems = fs.readdirSync(sourceDir);
+    for (const item of dirItems) {
+      if (item.startsWith(baseName) && (item.includes('.test.') || item.includes('.spec.'))) {
+        const testPath = path.join(sourceDir, item);
+        const relativePath = path.relative(projectRoot, testPath);
+        if (!testFiles.includes(relativePath)) {
+          testFiles.push(relativePath);
+        }
+      }
+    }
+  }
+  
+  return testFiles;
+}
+
 // Function to update file entry
 function updateFileEntry(fileEntry, projectRoot) {
   const fileName = fileEntry.name;
@@ -181,6 +250,18 @@ function updateFileEntry(fileEntry, projectRoot) {
   const dependencies = getDependenciesFromReport(fileName, projectRoot);
   const language = getFileLanguage(fileName);
   
+  // Find test files for this source file
+  const testFiles = findTestFiles(fileName, projectRoot);
+  const testCoverage = testFiles.length > 0 ? {
+    hasTests: true,
+    testFiles: testFiles,
+    testCount: testFiles.length
+  } : {
+    hasTests: false,
+    testFiles: [],
+    testCount: 0
+  };
+  
   // Count dependency types
   const npmCount = dependencies.filter(d => d.type === 'npm').length;
   const localCount = dependencies.filter(d => d.type === 'local').length;
@@ -192,7 +273,7 @@ function updateFileEntry(fileEntry, projectRoot) {
   return {
     ...fileEntry,
     dependencies: dependencies,
-    testCoverage: "none",
+    testCoverage: testCoverage,
     dependents: [],
     orphan: false,
     valid: true,
@@ -312,12 +393,25 @@ function syncCodebaseMap(codebaseMap, projectRoot) {
             actualFiles.forEach(actualFile => {
               if (!processedFiles.has(actualFile.name)) {
                 console.log(`➕ Added new file: ${actualFile.name}`);
+                
+                // Find test files for this new file
+                const testFiles = findTestFiles(actualFile.name, projectRoot);
+                const testCoverage = testFiles.length > 0 ? {
+                  hasTests: true,
+                  testFiles: testFiles,
+                  testCount: testFiles.length
+                } : {
+                  hasTests: false,
+                  testFiles: [],
+                  testCount: 0
+                };
+                
                 const newFileEntry = {
                   name: actualFile.name,
                   description: `Auto-generated entry for ${actualFile.name}`,
                   lastUpdated: new Date().toISOString().split('T')[0],
                   dependencies: [],
-                  testCoverage: "none",
+                  testCoverage: testCoverage,
                   dependents: [],
                   orphan: false,
                   valid: true,
